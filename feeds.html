@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RSS Feeds Found</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      padding: 40px;
+      background: #f5f5f5;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      margin-bottom: 10px;
+      color: #222;
+      font-size: 28px;
+    }
+
+    .subtitle {
+      margin-bottom: 30px;
+      color: #666;
+      font-size: 14px;
+    }
+
+    #feeds {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .feed {
+      padding: 15px;
+      background: #fafafa;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .feed:hover {
+      background: #f0f0f0;
+      border-color: #FF6600;
+      transform: translateX(5px);
+    }
+
+    .feed a {
+      text-decoration: none;
+      color: #0073e6;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .feed a:hover {
+      color: #FF6600;
+    }
+
+    .feed-type {
+      display: inline-block;
+      padding: 2px 8px;
+      background: #FF6600;
+      color: white;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .feed-title {
+      flex: 1;
+    }
+
+    .loading,
+    .no-feeds {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+      font-size: 16px;
+    }
+
+    .icon {
+      width: 20px;
+      height: 20px;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>RSS Feeds Found</h1>
+    <p class="subtitle">Click any feed to subscribe via Newsblur</p>
+    <div id="feeds" class="loading">Loading feeds...</div>
+  </div>
+  <script src="feeds.js"></script>
+</body>
+</html>
