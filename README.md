@@ -1,13 +1,17 @@
-# RSS Feed Detector for Newsblur
+# RSS Feed Detector
 
-A lightweight Chrome extension that automatically detects RSS and Atom feeds on web pages and allows quick subscription via [Newsblur](https://newsblur.com).
+A lightweight Chrome extension that automatically detects RSS and Atom feeds on web pages and allows quick subscription via multiple RSS readers.
 
 ## Features
 
 - Automatically detects RSS and Atom feeds on any webpage
 - Visual indicator: icon changes color when feeds are found
 - Badge shows the number of detected feeds
-- One-click access to subscribe to feeds via Newsblur
+- **Multiple RSS reader support**: NewsBlur, Feedly, Inoreader, The Old Reader
+- **Custom reader support**: Add your own RSS reader with a custom URL pattern
+- **Feed URL display**: See the actual feed URL for each detected feed
+- **Copy to clipboard**: One-click copy of feed URLs for easy sharing
+- Remembers your preferred RSS reader choice
 - Clean, minimal interface with no popup clutter
 - Works with Chrome Manifest V3
 
@@ -39,7 +43,16 @@ A lightweight Chrome extension that automatically detects RSS and Atom feeds on 
 
 3. **View feeds** - Click the extension icon to open a new tab listing all discovered feeds
 
-4. **Subscribe** - Click any feed link to open Newsblur with that feed pre-filled for subscription
+4. **Choose your reader** - Select your preferred RSS reader from the dropdown:
+   - NewsBlur (default)
+   - Feedly
+   - Inoreader
+   - The Old Reader
+   - Custom Reader (enter your own URL pattern using `%s` as placeholder)
+
+5. **Subscribe** - Click any feed link to open your chosen RSS reader with that feed pre-filled
+
+6. **Copy feed URL** - Click the "Copy URL" button to copy the feed URL to your clipboard for manual subscription or sharing
 
 ## How It Works
 
@@ -47,7 +60,7 @@ The extension uses three main components:
 
 - **Content Script** (`content.js`) - Scans web pages for RSS/Atom feed links
 - **Background Worker** (`background.js`) - Manages feed cache and icon states
-- **Feeds Page** (`feeds.html` + `feeds.js`) - Displays detected feeds with Newsblur subscription links
+- **Feeds Page** (`feeds.html` + `feeds.js`) - Displays detected feeds with multi-reader support and copy functionality
 
 ### Feed Detection
 
@@ -91,7 +104,8 @@ This extension requires the following permissions:
 
 - `scripting` - To inject the content script that detects feeds
 - `tabs` - To get information about the current tab
-- `storage` - To temporarily store detected feeds
+- `storage` - To store detected feeds and save your reader preference
+- `clipboardWrite` - To enable copying feed URLs to clipboard
 - `<all_urls>` - To detect feeds on any website
 
 ## Development
@@ -117,10 +131,10 @@ After making changes:
 ## Future Enhancements
 
 - [ ] Firefox support
-- [ ] Support for additional feed readers (Feedly, Inoreader, etc.)
-- [ ] Settings page for choosing preferred feed reader
 - [ ] Feed preview before subscribing
 - [ ] Keyboard shortcuts
+- [ ] OPML export of discovered feeds
+- [ ] Feed validation and health checks
 
 ## License
 

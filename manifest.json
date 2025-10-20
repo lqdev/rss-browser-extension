@@ -1,12 +1,13 @@
 {
   "manifest_version": 3,
-  "name": "RSS Feed Detector for Newsblur",
-  "version": "1.0.0",
-  "description": "Detects RSS/Atom feeds on web pages and allows quick subscription via Newsblur",
+  "name": "RSS Feed Detector",
+  "version": "1.1.0",
+  "description": "Detects RSS/Atom feeds on web pages and allows quick subscription via multiple RSS readers",
   "permissions": [
     "scripting",
     "tabs",
-    "storage"
+    "storage",
+    "clipboardWrite"
   ],
   "host_permissions": [
     "<all_urls>"
