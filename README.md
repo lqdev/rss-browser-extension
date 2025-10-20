@@ -2,6 +2,8 @@
 
 A lightweight Chrome extension that automatically detects RSS and Atom feeds on web pages and allows quick subscription via [Newsblur](https://newsblur.com).
 
+![](./images/discovered-feeds.png)
+
 ## Features
 
 - Automatically detects RSS and Atom feeds on any webpage
