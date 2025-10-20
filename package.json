@@ -1,0 +1,22 @@
+{
+  "name": "rss-browser-extension",
+  "version": "1.0.0",
+  "description": "A lightweight Chrome extension that automatically detects RSS and Atom feeds on web pages and allows quick subscription via [Newsblur](https://newsblur.com).",
+  "main": "background.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://local_proxy@127.0.0.1:33081/git/lqdev/rss-browser-extension"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "sharp": "^0.34.4"
+  }
+}

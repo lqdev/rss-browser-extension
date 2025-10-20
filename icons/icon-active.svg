@@ -1,6 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
   <rect width="128" height="128" rx="20" fill="#FF6600"/>
-  <circle cx="35" cy="93" r="10" fill="white"/>
-  <path d="M 30 60 Q 30 93 63 93" fill="none" stroke="white" stroke-width="10" stroke-linecap="round"/>
-  <path d="M 30 35 Q 30 93 88 93" fill="none" stroke="white" stroke-width="10" stroke-linecap="round"/>
+  <!-- Small circle (bottom left) -->
+  <circle cx="28" cy="100" r="8" fill="white"/>
+  <!-- First arc (quarter circle) -->
+  <path d="M 20 70 A 30 30 0 0 1 50 100" fill="none" stroke="white" stroke-width="7" stroke-linecap="round"/>
+  <!-- Second arc (quarter circle, larger) -->
+  <path d="M 20 45 A 55 55 0 0 1 75 100" fill="none" stroke="white" stroke-width="7" stroke-linecap="round"/>
 </svg>
