@@ -35,9 +35,57 @@
     }
 
     .subtitle {
-      margin-bottom: 30px;
+      margin-bottom: 20px;
       color: #666;
       font-size: 14px;
+    }
+
+    .reader-selector {
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #f9f9f9;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+    }
+
+    .reader-selector label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    .reader-selector select,
+    .reader-selector input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+
+    .reader-selector select:focus,
+    .reader-selector input:focus {
+      outline: none;
+      border-color: #FF6600;
+      box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.1);
+    }
+
+    #customReaderUrl {
+      margin-top: 10px;
+      display: none;
+    }
+
+    #customReaderUrl.show {
+      display: block;
+    }
+
+    .custom-url-hint {
+      margin-top: 5px;
+      font-size: 12px;
+      color: #666;
     }
 
     #feeds {
@@ -60,17 +108,62 @@
       transform: translateX(5px);
     }
 
-    .feed a {
+    .feed-link {
       text-decoration: none;
       color: #0073e6;
       font-size: 16px;
       display: flex;
       align-items: center;
       gap: 10px;
+      margin-bottom: 10px;
     }
 
-    .feed a:hover {
+    .feed-link:hover {
       color: #FF6600;
+    }
+
+    .feed-url-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px;
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      margin-top: 8px;
+    }
+
+    .feed-url {
+      flex: 1;
+      font-size: 12px;
+      color: #666;
+      font-family: monospace;
+      word-break: break-all;
+    }
+
+    .copy-btn {
+      padding: 6px 12px;
+      background: #FF6600;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
+      transition: background 0.2s ease;
+    }
+
+    .copy-btn:hover {
+      background: #e55a00;
+    }
+
+    .copy-btn:active {
+      background: #cc4f00;
+    }
+
+    .copy-btn.copied {
+      background: #28a745;
     }
 
     .feed-type {
@@ -107,7 +200,21 @@
 <body>
   <div class="container">
     <h1>RSS Feeds Found</h1>
-    <p class="subtitle">Click any feed to subscribe via Newsblur</p>
+    <p class="subtitle">Choose your preferred RSS reader and click any feed to subscribe</p>
+
+    <div class="reader-selector">
+      <label for="readerSelect">RSS Reader:</label>
+      <select id="readerSelect">
+        <option value="newsblur">NewsBlur</option>
+        <option value="feedly">Feedly</option>
+        <option value="inoreader">Inoreader</option>
+        <option value="theoldreader">The Old Reader</option>
+        <option value="custom">Custom Reader...</option>
+      </select>
+      <input type="text" id="customReaderUrl" placeholder="Enter custom reader URL (use %s as placeholder for feed URL)" />
+      <div class="custom-url-hint">Example: https://your-reader.com/subscribe?url=%s</div>
+    </div>
+
     <div id="feeds" class="loading">Loading feeds...</div>
   </div>
   <script src="feeds.js"></script>
