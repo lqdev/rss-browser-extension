@@ -1,6 +1,6 @@
 # RSS Feed Detector
 
-A lightweight Chrome extension that automatically detects RSS and Atom feeds on web pages and allows quick subscription via multiple RSS readers.
+A lightweight browser extension for Chromium-based browsers (Chrome, Brave, Edge, etc.) that automatically detects RSS and Atom feeds on web pages and allows quick subscription via multiple RSS readers.
 
 ![](./images/discovered-feeds.png)
 
@@ -15,7 +15,7 @@ A lightweight Chrome extension that automatically detects RSS and Atom feeds on 
 - **Copy to clipboard**: One-click copy of feed URLs for easy sharing
 - Remembers your preferred RSS reader choice
 - Clean, minimal interface with no popup clutter
-- Works with Chrome Manifest V3
+- Works with all Chromium-based browsers (Chrome, Brave, Edge, etc.) using Manifest V3
 
 ## Installation
 
@@ -27,7 +27,7 @@ A lightweight Chrome extension that automatically detects RSS and Atom feeds on 
    cd rss-browser-extension
    ```
 
-2. Open Chrome and navigate to `chrome://extensions/`
+2. Open your Chromium-based browser (Chrome, Brave, Edge, etc.) and navigate to `chrome://extensions/`
 
 3. Enable "Developer mode" using the toggle in the top right corner
 
@@ -126,7 +126,7 @@ rsvg-convert -w 128 -h 128 icon-active.svg -o icon-active.png
 
 After making changes:
 
-1. Go to `chrome://extensions/`
+1. Go to `chrome://extensions/` (works in all Chromium browsers: Chrome, Brave, Edge, etc.)
 2. Click the refresh icon on the RSS Feed Detector card
 3. Test on a website with RSS feeds
 

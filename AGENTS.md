@@ -4,11 +4,11 @@ This file provides context and instructions to help AI coding agents work effect
 
 ## Project Overview
 
-This is a Chrome browser extension (Manifest V3) that detects RSS/Atom feeds on web pages and enables quick subscription via Newsblur. The extension has no popup UI—instead, clicking the icon opens a new tab displaying detected feeds.
+This is a browser extension for Chromium-based browsers (Chrome, Brave, Edge, etc.) using Manifest V3 that detects RSS/Atom feeds on web pages and enables quick subscription via multiple RSS readers. The extension has no popup UI—instead, clicking the icon opens a new tab displaying detected feeds.
 
 ## Dev Environment Tips
 
-- **Load the extension in Chrome**: Navigate to `chrome://extensions/`, enable "Developer mode", click "Load unpacked", and select this directory
+- **Load the extension**: Navigate to `chrome://extensions/` in any Chromium browser (Chrome, Brave, Edge, etc.), enable "Developer mode", click "Load unpacked", and select this directory
 - **Reload after changes**: After modifying any files, go to `chrome://extensions/` and click the refresh icon on the extension card
 - **View console logs**:
   - For `background.js`: Right-click the extension and select "Inspect service worker"
