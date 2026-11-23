@@ -51,15 +51,28 @@
       '%u': pageUrl || '',
       '%t': pageTitle
     };
-    const expanded = template.replace(/%[sut]/g, placeholder => (
-      encodeURIComponent(replacements[placeholder])
-    ));
+    try {
+      const expanded = template.replace(/%[sut]/g, placeholder => (
+        encodeURIComponent(replacements[placeholder])
+      ));
 
-    return normalizeHttpUrl(expanded);
+      return normalizeHttpUrl(expanded);
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function getFeedActionAccessibleName(label, feedTitle, feedUrl) {
+    const title = typeof feedTitle === 'string' && feedTitle.trim()
+      ? feedTitle.trim()
+      : 'Feed';
+    const url = typeof feedUrl === 'string' ? feedUrl.trim() : '';
+    return `${label} for ${title}${url ? ` (${url})` : ''}`;
   }
 
   return {
     expandUrlTemplate,
+    getFeedActionAccessibleName,
     normalizeHttpUrl
   };
 });

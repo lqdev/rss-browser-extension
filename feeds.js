@@ -159,15 +159,27 @@ function createFeedElement(feed) {
   const subscriptionUrl = getSubscriptionUrl(feed.href);
   actions.appendChild(createActionElement(
     `Subscribe in ${getReaderName()}`,
-    subscriptionUrl
+    subscriptionUrl,
+    false,
+    FeedUrlUtils.getFeedActionAccessibleName(
+      `Subscribe in ${getReaderName()}`,
+      feed.title,
+      feed.href
+    )
   ));
 
   const secondaryUrl = getSecondaryActionUrl(feed.href);
   if (secondaryActionLabel.trim() && secondaryActionUrl.trim()) {
+    const secondaryLabel = secondaryActionLabel.trim();
     actions.appendChild(createActionElement(
-      secondaryActionLabel.trim(),
+      secondaryLabel,
       secondaryUrl,
-      true
+      true,
+      FeedUrlUtils.getFeedActionAccessibleName(
+        secondaryLabel,
+        feed.title,
+        feed.href
+      )
     ));
   }
   feedDiv.appendChild(actions);
@@ -190,12 +202,13 @@ function createFeedElement(feed) {
   return feedDiv;
 }
 
-function createActionElement(label, url, secondary = false) {
+function createActionElement(label, url, secondary = false, accessibleName = label) {
   if (!url) {
     const disabledButton = document.createElement('button');
     disabledButton.type = 'button';
     disabledButton.className = `action-btn${secondary ? ' secondary' : ''}`;
     disabledButton.textContent = label;
+    disabledButton.setAttribute('aria-label', accessibleName);
     disabledButton.disabled = true;
     disabledButton.title = 'Enter a valid HTTP/HTTPS URL template.';
     return disabledButton;
@@ -207,6 +220,7 @@ function createActionElement(label, url, secondary = false) {
   link.target = '_blank';
   link.rel = 'noopener noreferrer';
   link.textContent = label;
+  link.setAttribute('aria-label', accessibleName);
   return link;
 }
 

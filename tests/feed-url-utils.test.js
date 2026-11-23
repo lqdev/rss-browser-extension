@@ -2,6 +2,7 @@ const assert = require('node:assert/strict');
 const test = require('node:test');
 const {
   expandUrlTemplate,
+  getFeedActionAccessibleName,
   normalizeHttpUrl
 } = require('../feed-url-utils.js');
 
@@ -100,5 +101,43 @@ test('rejects HTTP URLs with embedded credentials', () => {
       feedUrl: 'https://example.com/feed.xml'
     }),
     null
+  );
+});
+
+test('disables only template actions that cannot encode malformed titles', () => {
+  const context = {
+    feedUrl: 'https://example.com/feed.xml',
+    pageUrl: 'https://example.com/',
+    pageTitle: 'Invalid \uD800 title'
+  };
+
+  assert.equal(
+    expandUrlTemplate('https://reader.example/?title=%t', context),
+    null
+  );
+  assert.equal(
+    expandUrlTemplate('https://reader.example/?feed=%s', context),
+    'https://reader.example/?feed=https%3A%2F%2Fexample.com%2Ffeed.xml'
+  );
+});
+
+test('includes feed identity in action accessible names', () => {
+  assert.equal(
+    getFeedActionAccessibleName(
+      'Subscribe in NewsBlur',
+      'Example News',
+      'https://example.com/feed.xml'
+    ),
+    'Subscribe in NewsBlur for Example News ' +
+      '(https://example.com/feed.xml)'
+  );
+  assert.equal(
+    getFeedActionAccessibleName(
+      'Subscribe in NewsBlur',
+      '',
+      'https://other.example/feed.xml'
+    ),
+    'Subscribe in NewsBlur for Feed ' +
+      '(https://other.example/feed.xml)'
   );
 });
