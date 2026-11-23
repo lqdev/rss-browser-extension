@@ -30,16 +30,30 @@ The extension detects feeds using these selectors:
 ```javascript
 'link[rel="alternate"][type="application/rss+xml"]'
 'link[rel="alternate"][type="application/atom+xml"]'
+'link[rel="alternate"][type="application/feed+json"]'
 'a[type="application/rss+xml"]'
 'a[type="application/atom+xml"]'
+'a[type="application/feed+json"]'
 ```
 
 ### Communication Flow
 
-1. `content.js` scans the page and sends messages to `background.js`
-2. `background.js` caches feeds per tab and updates icon/badge
-3. When clicked, `background.js` stores feeds in session storage and opens `feeds.html`
-4. `feeds.js` retrieves feeds from session storage and renders links to Newsblur
+1. `content.js` scans the page, resolves HTTP/HTTPS feed URLs, and sends feeds with `pageUrl` and `pageTitle` to `background.js`
+2. `background.js` caches feeds and page context per tab and updates icon/badge
+3. When clicked, `background.js` stores feeds plus page context in session storage and opens `feeds.html`; the old feeds-only storage shape remains supported
+4. `feeds.js` retrieves the session data and renders links for the selected reader plus an optional secondary action
+
+### URL Templates and Follow Handoff
+
+Reader and secondary-action templates support repeated `%s` (feed URL), `%u` (page URL), and `%t` (page title) placeholders. Values are encoded with `encodeURIComponent`, and resulting URLs must use HTTP or HTTPS. The optional secondary action saves its label and template in `chrome.storage.local`.
+
+The documented personal follow handoff is:
+
+```text
+https://lqdev.github.io/github-post-pwa/share.html?intent=follow&feed=%s&url=%u&title=%t
+```
+
+This desktop-only Chromium enhancement does not add Firefox or Edge Android ports. Downstream form IDs are `feed_url`, `site_url`, `site_title`, and `roll`; this extension supplies the shared-contract feed, page URL, and page title values but has no roll selection.
 
 ### Code Style
 
@@ -74,6 +88,11 @@ The extension detects feeds using these selectors:
 4. **Test tab switching**:
    - Open multiple tabs with different feed counts
    - Verify badge and icon update correctly for each tab
+
+5. **Test follow handoff configuration**:
+   - Set a secondary action label and the documented URL template
+   - Verify its second button receives encoded `%s`, `%u`, and `%t` values
+   - Verify repeated placeholders and old feeds-only session data
 
 ### Regression Testing
 

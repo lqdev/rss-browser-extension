@@ -59,7 +59,8 @@
     .reader-selector select,
     .reader-selector input {
       width: 100%;
-      padding: 8px 12px;
+      min-height: 44px;
+      padding: 10px 12px;
       border: 1px solid #ddd;
       border-radius: 4px;
       font-size: 14px;
@@ -88,6 +89,16 @@
       color: #666;
     }
 
+    .secondary-action-settings {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    .secondary-action-settings input + label {
+      margin-top: 12px;
+    }
+
     #feeds {
       display: flex;
       flex-direction: column;
@@ -102,24 +113,63 @@
       transition: all 0.2s ease;
     }
 
-    .feed:hover {
-      background: #f0f0f0;
-      border-color: #FF6600;
-      transform: translateX(5px);
-    }
-
-    .feed-link {
-      text-decoration: none;
-      color: #0073e6;
-      font-size: 16px;
+    .feed-header {
       display: flex;
       align-items: center;
       gap: 10px;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
+      font-size: 16px;
     }
 
-    .feed-link:hover {
-      color: #FF6600;
+    .feed-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .action-btn {
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 14px;
+      border: 1px solid #0073e6;
+      border-radius: 4px;
+      background: #0073e6;
+      color: white;
+      text-decoration: none;
+      font-family: inherit;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .action-btn.secondary {
+      border-color: #666;
+      background: white;
+      color: #333;
+    }
+
+    .action-btn:hover {
+      background: #005bb5;
+      color: white;
+    }
+
+    .action-btn.secondary:hover {
+      background: #eee;
+      color: #222;
+    }
+
+    .action-btn:focus-visible,
+    .copy-btn:focus-visible {
+      outline: 3px solid #005bb5;
+      outline-offset: 2px;
+    }
+
+    .action-btn:disabled {
+      border-color: #ccc;
+      background: #eee;
+      color: #777;
+      cursor: not-allowed;
     }
 
     .feed-url-container {
@@ -142,7 +192,8 @@
     }
 
     .copy-btn {
-      padding: 6px 12px;
+      min-height: 44px;
+      padding: 8px 14px;
       background: #FF6600;
       color: white;
       border: none;
@@ -195,6 +246,26 @@
       height: 20px;
       opacity: 0.7;
     }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 16px;
+      }
+
+      .container {
+        padding: 20px;
+      }
+
+      .feed-actions,
+      .feed-url-container {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .action-btn {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
@@ -211,12 +282,21 @@
         <option value="theoldreader">The Old Reader</option>
         <option value="custom">Custom Reader...</option>
       </select>
-      <input type="text" id="customReaderUrl" placeholder="Enter custom reader URL (use %s as placeholder for feed URL)" />
-      <div class="custom-url-hint">Example: https://your-reader.com/subscribe?url=%s</div>
+      <input type="url" id="customReaderUrl" placeholder="Enter a custom reader URL template" aria-describedby="customUrlHint" />
+      <div id="customUrlHint" class="custom-url-hint">Use %s for the feed URL, %u for the page URL, and %t for the page title. Example: https://your-reader.com/subscribe?url=%s</div>
+
+      <div class="secondary-action-settings">
+        <label for="secondaryActionLabel">Optional secondary action label:</label>
+        <input type="text" id="secondaryActionLabel" placeholder="For example: Follow site" />
+        <label for="secondaryActionUrl">Optional secondary action URL template:</label>
+        <input type="url" id="secondaryActionUrl" placeholder="https://example.com/share?feed=%s&amp;url=%u&amp;title=%t" aria-describedby="secondaryActionHint" />
+        <div id="secondaryActionHint" class="custom-url-hint">Both fields are required to show the second button. Templates support %s, %u, and %t.</div>
+      </div>
     </div>
 
     <div id="feeds" class="loading">Loading feeds...</div>
   </div>
+  <script src="feed-url-utils.js"></script>
   <script src="feeds.js"></script>
 </body>
 </html>

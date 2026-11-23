@@ -1,7 +1,6 @@
 // RSS Feed Detector - Feeds Page Script
 // Loads and displays discovered feeds with multi-reader support
 
-// Define available RSS readers and their subscription URL patterns
 const RSS_READERS = {
   newsblur: {
     name: 'NewsBlur',
@@ -23,162 +22,268 @@ const RSS_READERS = {
 
 let selectedReader = 'newsblur';
 let customReaderUrl = '';
+let secondaryActionLabel = '';
+let secondaryActionUrl = '';
+let pageData = {
+  feeds: [],
+  pageUrl: '',
+  pageTitle: ''
+};
 
-// Initialize the page
 (async () => {
   const container = document.getElementById('feeds');
   const readerSelect = document.getElementById('readerSelect');
   const customReaderInput = document.getElementById('customReaderUrl');
+  const secondaryLabelInput = document.getElementById('secondaryActionLabel');
+  const secondaryUrlInput = document.getElementById('secondaryActionUrl');
 
   try {
-    // Load saved reader preference
-    const { rssReader, customReader } = await chrome.storage.local.get(['rssReader', 'customReader']);
-    if (rssReader) {
-      selectedReader = rssReader;
-      readerSelect.value = rssReader;
-      if (rssReader === 'custom' && customReader) {
-        customReaderUrl = customReader;
-        customReaderInput.value = customReader;
-        customReaderInput.classList.add('show');
-      }
+    const settings = await chrome.storage.local.get([
+      'rssReader',
+      'customReader',
+      'secondaryActionLabel',
+      'secondaryActionUrl'
+    ]);
+    if (settings.rssReader && (
+      RSS_READERS[settings.rssReader] || settings.rssReader === 'custom'
+    )) {
+      selectedReader = settings.rssReader;
     }
 
-    // Handle reader selection change
-    readerSelect.addEventListener('change', async (e) => {
-      selectedReader = e.target.value;
+    customReaderUrl = settings.customReader || '';
+    secondaryActionLabel = settings.secondaryActionLabel || '';
+    secondaryActionUrl = settings.secondaryActionUrl || '';
+    readerSelect.value = selectedReader;
+    customReaderInput.value = customReaderUrl;
+    secondaryLabelInput.value = secondaryActionLabel;
+    secondaryUrlInput.value = secondaryActionUrl;
+    updateCustomReaderVisibility();
+
+    readerSelect.addEventListener('change', async (event) => {
+      selectedReader = event.target.value;
       await chrome.storage.local.set({ rssReader: selectedReader });
-
-      if (selectedReader === 'custom') {
-        customReaderInput.classList.add('show');
-        customReaderInput.focus();
-      } else {
-        customReaderInput.classList.remove('show');
-      }
-
-      // Re-render feeds with new reader
+      updateCustomReaderVisibility();
       renderFeeds();
     });
 
-    // Handle custom reader URL input
-    customReaderInput.addEventListener('input', async (e) => {
-      customReaderUrl = e.target.value;
+    customReaderInput.addEventListener('input', async (event) => {
+      customReaderUrl = event.target.value;
       await chrome.storage.local.set({ customReader: customReaderUrl });
       renderFeeds();
     });
 
-    // Retrieve feeds from session storage
-    const { feeds } = await chrome.storage.session.get('feeds');
+    secondaryLabelInput.addEventListener('input', async (event) => {
+      secondaryActionLabel = event.target.value;
+      await chrome.storage.local.set({
+        secondaryActionLabel
+      });
+      renderFeeds();
+    });
 
-    // Handle no feeds case
-    if (!feeds || feeds.length === 0) {
-      container.innerHTML = '<div class="no-feeds">No feeds found on the previous page.</div>';
-      return;
-    }
+    secondaryUrlInput.addEventListener('input', async (event) => {
+      secondaryActionUrl = event.target.value;
+      await chrome.storage.local.set({
+        secondaryActionUrl
+      });
+      renderFeeds();
+    });
 
-    // Initial render
-    renderFeeds(feeds);
-    console.log(`Rendered ${feeds.length} feed(s)`);
+    const storedPage = await chrome.storage.session.get([
+      'feeds',
+      'pageUrl',
+      'pageTitle'
+    ]);
+    pageData = {
+      feeds: Array.isArray(storedPage.feeds) ? storedPage.feeds : [],
+      pageUrl: typeof storedPage.pageUrl === 'string' ? storedPage.pageUrl : '',
+      pageTitle: typeof storedPage.pageTitle === 'string' ? storedPage.pageTitle : ''
+    };
+
+    renderFeeds();
   } catch (error) {
     console.error('Error loading feeds:', error);
-    container.innerHTML = '<div class="no-feeds">Error loading feeds. Please try again.</div>';
+    renderMessage('Error loading feeds. Please try again.');
   }
 })();
 
-// Render feeds with current reader selection
-async function renderFeeds(feedsData = null) {
+function updateCustomReaderVisibility() {
+  const customReaderInput = document.getElementById('customReaderUrl');
+  customReaderInput.classList.toggle('show', selectedReader === 'custom');
+}
+
+function renderMessage(message) {
   const container = document.getElementById('feeds');
+  const messageElement = document.createElement('div');
+  messageElement.className = 'no-feeds';
+  messageElement.textContent = message;
+  container.replaceChildren(messageElement);
+  container.classList.remove('loading');
+}
 
-  // If no feeds data provided, retrieve from storage
-  if (!feedsData) {
-    const { feeds } = await chrome.storage.session.get('feeds');
-    feedsData = feeds;
-  }
+function renderFeeds() {
+  const container = document.getElementById('feeds');
+  const validFeeds = pageData.feeds.filter(feed => (
+    feed && FeedUrlUtils.normalizeHttpUrl(feed.href)
+  ));
 
-  if (!feedsData || feedsData.length === 0) {
+  if (validFeeds.length === 0) {
+    renderMessage('No valid feeds found on the previous page.');
     return;
   }
 
-  // Clear container
-  container.innerHTML = '';
   container.classList.remove('loading');
+  container.replaceChildren(...validFeeds.map(createFeedElement));
+  console.log(`Rendered ${validFeeds.length} feed(s)`);
+}
 
-  // Render each feed
-  feedsData.forEach(feed => {
-    const feedDiv = document.createElement('div');
-    feedDiv.className = 'feed';
+function createFeedElement(feed) {
+  const feedDiv = document.createElement('div');
+  feedDiv.className = 'feed';
 
-    // Create subscription link
-    const link = document.createElement('a');
-    link.className = 'feed-link';
-    link.href = getSubscriptionUrl(feed.href);
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
+  const feedHeader = document.createElement('div');
+  feedHeader.className = 'feed-header';
 
-    // Feed title
-    const titleSpan = document.createElement('span');
-    titleSpan.className = 'feed-title';
-    titleSpan.textContent = feed.title;
+  const titleSpan = document.createElement('span');
+  titleSpan.className = 'feed-title';
+  titleSpan.textContent = typeof feed.title === 'string' ? feed.title : 'Feed';
 
-    // Feed type badge
-    const typeSpan = document.createElement('span');
-    typeSpan.className = 'feed-type';
-    const feedType = feed.type.includes('atom') ? 'Atom' : 'RSS';
-    typeSpan.textContent = feedType;
+  const typeSpan = document.createElement('span');
+  typeSpan.className = 'feed-type';
+  typeSpan.textContent = getFeedType(feed.type);
 
-    link.appendChild(titleSpan);
-    link.appendChild(typeSpan);
-    feedDiv.appendChild(link);
+  feedHeader.append(titleSpan, typeSpan);
+  feedDiv.appendChild(feedHeader);
 
-    // Feed URL display with copy button
-    const urlContainer = document.createElement('div');
-    urlContainer.className = 'feed-url-container';
+  const actions = document.createElement('div');
+  actions.className = 'feed-actions';
+  const subscriptionUrl = getSubscriptionUrl(feed.href);
+  actions.appendChild(createActionElement(
+    `Subscribe in ${getReaderName()}`,
+    subscriptionUrl,
+    false,
+    FeedUrlUtils.getFeedActionAccessibleName(
+      `Subscribe in ${getReaderName()}`,
+      feed.title,
+      feed.href
+    )
+  ));
 
-    const urlSpan = document.createElement('span');
-    urlSpan.className = 'feed-url';
-    urlSpan.textContent = feed.href;
+  const secondaryUrl = getSecondaryActionUrl(feed.href);
+  if (secondaryActionLabel.trim() && secondaryActionUrl.trim()) {
+    const secondaryLabel = secondaryActionLabel.trim();
+    actions.appendChild(createActionElement(
+      secondaryLabel,
+      secondaryUrl,
+      true,
+      FeedUrlUtils.getFeedActionAccessibleName(
+        secondaryLabel,
+        feed.title,
+        feed.href
+      )
+    ));
+  }
+  feedDiv.appendChild(actions);
 
-    const copyBtn = document.createElement('button');
-    copyBtn.className = 'copy-btn';
-    copyBtn.textContent = 'Copy URL';
-    copyBtn.addEventListener('click', () => copyToClipboard(feed.href, copyBtn));
+  const urlContainer = document.createElement('div');
+  urlContainer.className = 'feed-url-container';
 
-    urlContainer.appendChild(urlSpan);
-    urlContainer.appendChild(copyBtn);
-    feedDiv.appendChild(urlContainer);
+  const urlSpan = document.createElement('span');
+  urlSpan.className = 'feed-url';
+  urlSpan.textContent = feed.href;
 
-    container.appendChild(feedDiv);
+  const copyButton = document.createElement('button');
+  copyButton.type = 'button';
+  copyButton.className = 'copy-btn';
+  copyButton.textContent = 'Copy URL';
+  copyButton.addEventListener('click', () => copyToClipboard(feed.href, copyButton));
+
+  urlContainer.append(urlSpan, copyButton);
+  feedDiv.appendChild(urlContainer);
+  return feedDiv;
+}
+
+function createActionElement(label, url, secondary = false, accessibleName = label) {
+  if (!url) {
+    const disabledButton = document.createElement('button');
+    disabledButton.type = 'button';
+    disabledButton.className = `action-btn${secondary ? ' secondary' : ''}`;
+    disabledButton.textContent = label;
+    disabledButton.setAttribute('aria-label', accessibleName);
+    disabledButton.disabled = true;
+    disabledButton.title = 'Enter a valid HTTP/HTTPS URL template.';
+    return disabledButton;
+  }
+
+  const link = document.createElement('a');
+  link.className = `action-btn${secondary ? ' secondary' : ''}`;
+  link.href = url;
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer';
+  link.textContent = label;
+  link.setAttribute('aria-label', accessibleName);
+  return link;
+}
+
+function getFeedType(type) {
+  if (typeof type !== 'string') {
+    return 'RSS';
+  }
+
+  if (type.includes('atom')) {
+    return 'Atom';
+  }
+
+  if (type.includes('feed+json')) {
+    return 'JSON';
+  }
+
+  return 'RSS';
+}
+
+function getReaderName() {
+  if (selectedReader === 'custom') {
+    return 'Custom Reader';
+  }
+
+  return RSS_READERS[selectedReader]?.name || 'Reader';
+}
+
+function getReaderTemplate() {
+  if (selectedReader === 'custom') {
+    return customReaderUrl.includes('%s') ? customReaderUrl : '';
+  }
+
+  return RSS_READERS[selectedReader]?.url || '';
+}
+
+function getSubscriptionUrl(feedUrl) {
+  return FeedUrlUtils.expandUrlTemplate(getReaderTemplate(), {
+    feedUrl,
+    pageUrl: pageData.pageUrl,
+    pageTitle: pageData.pageTitle
   });
 }
 
-// Get subscription URL based on selected reader
-function getSubscriptionUrl(feedUrl) {
-  if (selectedReader === 'custom') {
-    if (!customReaderUrl || !customReaderUrl.includes('%s')) {
-      return '#';
-    }
-    return customReaderUrl.replace('%s', encodeURIComponent(feedUrl));
+function getSecondaryActionUrl(feedUrl) {
+  if (!secondaryActionLabel.trim() || !secondaryActionUrl.trim()) {
+    return null;
   }
 
-  const reader = RSS_READERS[selectedReader];
-  if (!reader) {
-    return '#';
-  }
-
-  return reader.url.replace('%s', encodeURIComponent(feedUrl));
+  return FeedUrlUtils.expandUrlTemplate(secondaryActionUrl, {
+    feedUrl,
+    pageUrl: pageData.pageUrl,
+    pageTitle: pageData.pageTitle
+  });
 }
 
-// Copy feed URL to clipboard
 async function copyToClipboard(text, button) {
   try {
     await navigator.clipboard.writeText(text);
-
-    // Visual feedback
-    const originalText = button.textContent;
     button.textContent = 'Copied!';
     button.classList.add('copied');
 
     setTimeout(() => {
-      button.textContent = originalText;
+      button.textContent = 'Copy URL';
       button.classList.remove('copied');
     }, 2000);
   } catch (error) {
