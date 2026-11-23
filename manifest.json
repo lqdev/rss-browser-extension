@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "RSS Feed Detector",
-  "version": "1.1.0",
-  "description": "Detects RSS/Atom feeds on web pages and allows quick subscription via multiple RSS readers",
+  "version": "1.2.0",
+  "description": "Detects RSS, Atom, and JSON feeds and allows subscription or follow-site handoffs",
   "permissions": [
     "scripting",
     "tabs",
@@ -18,7 +18,7 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.js"],
+      "js": ["feed-url-utils.js", "content.js"],
       "run_at": "document_idle"
     }
   ],

@@ -10,7 +10,7 @@ const feedCache = new Map();
 chrome.runtime.onMessage.addListener((message, sender) => {
   console.log('[RSS Detector] Message received:', message, 'from sender:', sender);
 
-  if (!sender.tab?.id) {
+  if (sender.tab?.id == null) {
     console.log('[RSS Detector] No tab ID in sender, ignoring message');
     return;
   }
@@ -21,8 +21,12 @@ chrome.runtime.onMessage.addListener((message, sender) => {
   if (message.type === 'feeds_found') {
     console.log('[RSS Detector] Feeds found! Count:', message.feeds.length);
 
-    // Store feeds for this tab
-    feedCache.set(tabId, message.feeds);
+    // Store feeds and page context for this tab
+    feedCache.set(tabId, {
+      feeds: message.feeds,
+      pageUrl: message.pageUrl || '',
+      pageTitle: message.pageTitle || ''
+    });
     console.log('[RSS Detector] Stored feeds in cache for tab:', tabId);
 
     // Update icon to active state
@@ -83,18 +87,25 @@ chrome.runtime.onMessage.addListener((message, sender) => {
 // Handle icon click
 chrome.action.onClicked.addListener(async (tab) => {
   console.log('[RSS Detector] Icon clicked for tab:', tab.id);
-  const feeds = feedCache.get(tab.id);
-  console.log('[RSS Detector] Cached feeds for this tab:', feeds);
+  const cachedData = feedCache.get(tab.id);
+  const feedsData = Array.isArray(cachedData)
+    ? { feeds: cachedData }
+    : cachedData;
+  console.log('[RSS Detector] Cached feeds for this tab:', feedsData);
 
   // Only open feeds page if feeds were found
-  if (!feeds?.length) {
+  if (!feedsData?.feeds?.length) {
     console.log('[RSS Detector] No feeds in cache, not opening feeds page');
     return;
   }
 
-  // Store feeds in session storage for the feeds page to access
-  await chrome.storage.session.set({ feeds });
-  console.log('[RSS Detector] Stored feeds in session storage');
+  // Keep the old feeds key and add page context alongside it.
+  await chrome.storage.session.set({
+    feeds: feedsData.feeds,
+    pageUrl: feedsData.pageUrl || '',
+    pageTitle: feedsData.pageTitle || ''
+  });
+  console.log('[RSS Detector] Stored feeds and page context in session storage');
 
   // Open feeds page in new tab
   chrome.tabs.create({

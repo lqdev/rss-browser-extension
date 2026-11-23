@@ -10,8 +10,10 @@
   const feedSelectors = [
     'link[rel="alternate"][type="application/rss+xml"]',
     'link[rel="alternate"][type="application/atom+xml"]',
+    'link[rel="alternate"][type="application/feed+json"]',
     'a[type="application/rss+xml"]',
-    'a[type="application/atom+xml"]'
+    'a[type="application/atom+xml"]',
+    'a[type="application/feed+json"]'
   ];
 
   // Find all feed links on the page
@@ -20,11 +22,17 @@
 
   const feedLinks = Array.from(feedElements)
     .map(el => ({
-      href: el.href,
+      href: FeedUrlUtils.normalizeHttpUrl(el.getAttribute('href'), document.baseURI),
       title: el.title || el.textContent?.trim() || 'Feed',
       type: el.type || 'application/rss+xml'
     }))
-    .filter(feed => feed.href); // Only include feeds with valid href
+    .filter(feed => feed.href);
+
+  const pageUrl = FeedUrlUtils.normalizeHttpUrl(window.location.href) || '';
+  const siteName = document.querySelector('meta[property="og:site_name"]')
+    ?.getAttribute('content')
+    ?.trim();
+  const pageTitle = siteName || document.title || '';
 
   console.log('[RSS Detector] Processed feed links:', feedLinks);
 
@@ -33,7 +41,9 @@
     console.log('[RSS Detector] Sending feeds_found message with', feedLinks.length, 'feeds');
     chrome.runtime.sendMessage({
       type: 'feeds_found',
-      feeds: feedLinks
+      feeds: feedLinks,
+      pageUrl,
+      pageTitle
     }).then(() => {
       console.log('[RSS Detector] Message sent successfully');
     }).catch(error => {
