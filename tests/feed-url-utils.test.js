@@ -89,3 +89,16 @@ test('rejects invalid action URLs and unsafe feed or page URLs', () => {
     null
   );
 });
+
+test('rejects HTTP URLs with embedded credentials', () => {
+  assert.equal(
+    normalizeHttpUrl('https://user:secret@example.com/feed.xml'),
+    null
+  );
+  assert.equal(
+    expandUrlTemplate('https://user@example.com/?feed=%s', {
+      feedUrl: 'https://example.com/feed.xml'
+    }),
+    null
+  );
+});

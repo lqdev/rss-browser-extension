@@ -20,6 +20,10 @@
         return null;
       }
 
+      if (url.username || url.password) {
+        return null;
+      }
+
       return url.href;
     } catch (error) {
       return null;
